@@ -9,30 +9,45 @@ def sigmoid(z):
     g = 1/ (1 + np.exp(-z))
     return g
 
-def compute_cost(x, y, w, b):
-    total_cost = 0
+def compute_cost(x, y, w, b, lambda_ = 1):
+    cost = 0
     m = x.shape[0]
+    n = len(w)
 
     for i in range(m):
         f_wb_i = np.dot(w, x[i]) + b    
-        total_cost += total_cost + (f_wb_i - y[i])**2
-    total_cost = total_cost / (2 * m)
-    return total_cost
+        cost += cost + (f_wb_i - y[i])**2
+    cost = cost / (2 * m)
+    reg_cost = 0
+    for j in range(n):
+        reg_cost += (w[j]**2)                                          #scalar
+    reg_cost = (lambda_/(2*m)) * reg_cost                              #scalar
+    
+    total_cost = cost + reg_cost                                       #scalar
+    return total_cost            
 
-def compute_logistic_cost(x,y,w,b):
-    total_cost = 0
+
+def compute_logistic_cost(x,y,w,b, lambda_ = 1):
+    cost = 0
     m = x.shape[0]
-
+    n = len(w)
     for i in range(m):
         z_i = np.dot(x[i],w) + b
         f_wb_i = sigmoid(z_i)
-        total_cost += -y[i]*np.log(f_wb_i) - (1 - y[i]) * np.log(1-f_wb_i)
-    total_cost /= m
-    return total_cost 
+        cost += -y[i]*np.log(f_wb_i) - (1 - y[i]) * np.log(1-f_wb_i)
+    cost /= m
 
-def compute_gradient(X, y, w, b): 
+    reg_cost = 0
+    for j in range(n):
+        reg_cost += (w[j]**2)                                          #scalar
+    reg_cost = (lambda_/(2*m)) * reg_cost                              #scalar
+    
+    total_cost = cost + reg_cost                                       #scalar
+    return total_cost          
+
+def compute_gradient(X, y, w, b, lambda_): 
     """
-    Computes the gradient for linear regression 
+    Computes the gradient with regularization term
     Args:
       X (ndarray (m,n)): Data, m examples with n features
       y (ndarray (m,)) : target values
@@ -48,12 +63,18 @@ def compute_gradient(X, y, w, b):
     dj_db = 0.
 
     for i in range(m):                             
-        err = (np.dot(X[i], w) + b) - y[i]   
+        err = (np.dot(X[i], w) + b) - y[i] 
+        # f_wb_i = sigmoid(np.dot(X[i],w) + b)         
+        # err  = f_wb_i  - y[i]  
         for j in range(n):                         
             dj_dw[j] = dj_dw[j] + err * X[i, j]    
         dj_db = dj_db + err                        
     dj_dw = dj_dw / m                                
-    dj_db = dj_db / m                                
+    dj_db = dj_db / m  
+
+    for j in range(n):
+        dj_dw[j] = dj_dw[j] + (lambda_/m) * w[j]
+                              
         
     return dj_db, dj_dw
 
