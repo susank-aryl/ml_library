@@ -5,12 +5,8 @@ def linear_regression(x, w, b)-> np.ndarray:
     f_wb = np.dot(w,x) + b
     return f_wb
 
-def sigmoid(z):
-    g = 1/ (1 + np.exp(-z))
-    return g
-
-def compute_cost(x, y, w, b, lambda_ = 1):
-    cost = 0
+def compute_cost(x, y, w, b):
+    total_cost = 0
     m = x.shape[0]
     n = len(w)
 
@@ -26,6 +22,16 @@ def compute_cost(x, y, w, b, lambda_ = 1):
     total_cost = cost + reg_cost                                       #scalar
     return total_cost            
 
+def compute_logistic_cost(x,y,w,b):
+    total_cost = 0
+    m = x.shape[0]
+
+    for i in range(m):
+        z_i = np.dot(x[i],w) + b
+        f_wb_i = sigmoid(z_i)
+        total_cost += -y[i]*np.log(f_wb_i) - (1 - y[i]) * np.log(1-f_wb_i)
+    total_cost /= m
+    return total_cost 
 
 def compute_logistic_cost(x,y,w,b, lambda_ = 1):
     cost = 0
